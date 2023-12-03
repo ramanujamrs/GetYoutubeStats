@@ -18,7 +18,7 @@ DB = os.getenv("DB")
 KEY = os.getenv("KEY")
 
 # INSERT Statement
-single_record = "INSERT INTO yt_video_viewcount (video_id, view_count,datetime)\
+insert_stmt = "INSERT INTO yt_video_viewcount (video_id, view_count,datetime)\
     VALUES (%s, %s, %s)"
 
 # Connect to DB
@@ -31,12 +31,12 @@ try:
         database = DB
     ) as database: 
        
-        select_specific_cols = "SELECT video_id, title FROM yt_channel_videos"
+        print("Program Started")
+        select_stmt = "SELECT video_id, title FROM yt_channel_videos"
         with database.cursor() as cursor:
-            cursor.execute(select_specific_cols)
+            cursor.execute(select_stmt)
             result = cursor.fetchall()
             for row in result:
-                print(row[0])
                 videoId = row[0]
                 videostats = "https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&id="+ videoId +"&key="+KEY
                 statsrequest = requests.get(videostats)
@@ -45,8 +45,7 @@ try:
                 for st in statsvideos["items"]: 
                     #print(st["statistics"]["viewCount"])
                     now = datetime.now()
-                    print("now =", now)
-                    # dd/mm/YY H:M:S
+                    # YYYY-MM-DD H:M:S
                     dt_string = now.strftime("%Y-%m-%d %H:%M:%S")
                     video_records = [
                     (
@@ -55,9 +54,11 @@ try:
                         dt_string
                     )]
                 with database.cursor() as cursor:
-                    cursor.executemany(single_record, video_records)
+                    cursor.executemany(insert_stmt, video_records)
                     database.commit()
         database.close()
+        print("Program Completed", now)
+                    
 except connector.Error as e: 
     print(e)
 
