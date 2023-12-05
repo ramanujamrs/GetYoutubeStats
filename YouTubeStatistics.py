@@ -8,6 +8,9 @@ from mysql import connector
 from dotenv import load_dotenv
 
 from datetime import datetime
+import time
+from zoneinfo import ZoneInfo
+
 
 # Access environment variables
 load_dotenv()
@@ -43,10 +46,10 @@ try:
                 statsvideos = statsrequest.json()
 
                 for st in statsvideos["items"]: 
-                    #print(st["statistics"]["viewCount"])
                     now = datetime.now()
+                    us_central_dt = datetime.fromtimestamp(time.time(), tz=ZoneInfo("America/Chicago"))
                     # YYYY-MM-DD H:M:S
-                    dt_string = now.strftime("%Y-%m-%d %H:%M:%S")
+                    dt_string = us_central_dt.strftime("%Y-%m-%d %H:%M:%S")
                     video_records = [
                     (
                         videoId,
